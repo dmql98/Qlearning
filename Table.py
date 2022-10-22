@@ -72,9 +72,9 @@ def generateQTable(file):
             tempList = []
             for value in row:
                 if value == '0':
-                    tempList.append([0.0, 0.0 ,0.0 ,0.0])
+                    tempList.append([0.0, 0.0, 0.0, 0.0])
                 elif value == 'S':
-                    tempList.append([0.0, 0.0 ,0.0 ,0.0])
+                    tempList.append([0.0, 0.0, 0.0, 0.0])
                 elif value == 'X':
                     tempList.append('X')
                 else:

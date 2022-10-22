@@ -10,7 +10,7 @@ print('input here:')
 # runTime = input("How many seconds to run for: ")
 # P = input("Enter P(action succeeds) : ")
 filename = 'map.csv'
-action = 0.04
+action = -0.04
 gamma = 0.9
 runTime = 20.0
 P = 0.9
@@ -25,22 +25,17 @@ print('===========================')
 print('place agent into the map')
 agent.printMap()# this is the table with agent on it
 
-# print('===========================', '\n Qtable')
-# agent.printQTable()
 
-# # moving test
-print('===========================  \n MovingTest' )
-# agent.takeAction(agent.currentLocation, 0) # 0: Up, 1:Down, 2:Left, 3:Right
-# agent.takeAction(agent.currentLocation, 0)
-# agent.takeAction(agent.currentLocation, 3)
-# agent.takeAction(agent.currentLocation, 3)
-# agent.printMap()
+# print('===========================', '\n Qtable')
+# agent.printMaxQTable()
 
 # exploring test
+print('===========================  \n exploring test' )
 agent.explore()
 
+
 # print the current agent location on map and if it is terminated
-print('agent current location: ', agent.currentLocation, '//  terminated?', agent.terminated())
+# print('agent current location: ', agent.currentLocation, '//  terminated?', agent.terminated())
 
 
 
