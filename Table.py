@@ -1,6 +1,5 @@
 from copy import copy, deepcopy
 import csv
-from re import template
 
 class Table:
     def __init__(self, filename):
