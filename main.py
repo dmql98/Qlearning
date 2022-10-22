@@ -45,9 +45,12 @@ print('===========================', '\n Policy')
 agent.printPolicy()
 
 print('===========================', '\n Heatmap')
-agent.printHeatmapVisitTimes()
-print('total visit', agent.getHeatmapTotalVisits())
+# agent.printHeatmapVisitTimes()
+# print('total visit', agent.getHeatmapTotalVisits())
 agent.printHeatmapPercent()
+
+print('===========================')
+agent.printMeanReward()
 
 
 

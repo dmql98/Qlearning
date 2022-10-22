@@ -22,14 +22,13 @@ class Agent:
 
         self.currentLocation = deepcopy(startLocation)
         self.rewordsRecord = []
+        self.totalReword = 0
 
         
 
     # need to implement
     def learn(self):
         x = 1 # doesn't mean anything
-
-
 
     def explore(self):
         while (time.time() - self.startTime) < self.totalRuntime:
@@ -49,6 +48,7 @@ class Agent:
 
             reword = round(reword + self.getTerminatedReword(self.currentLocation), 2)
             self.rewordsRecord.append(reword)
+            self.totalReword += reword
         
         print(time.time() - self.startTime)
         print('Point', self.rewordsRecord)
@@ -148,6 +148,9 @@ class Agent:
                 else:
                     print(i, end="\t")  # print the elements
             print('')
+
+    def printMeanReward(self):
+        print('Mean Reward per Trial:', round(self.totalReword/len(self.rewordsRecord), 2))
 
             
     # update
