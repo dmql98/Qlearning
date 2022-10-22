@@ -38,7 +38,6 @@ print('agent location: ', agent.location, '//  terminated?', agent.terminated(ag
 
 
 
-
 # final result
 print('===========================', '\n Policy')
 agent.printPolicy()
