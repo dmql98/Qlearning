@@ -36,8 +36,6 @@ class Table:
             
 
 
-
-
 # read CSV file
 def readCSV(file):
     data = []

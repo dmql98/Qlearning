@@ -5,14 +5,13 @@ from operator import truediv
 
 
 class Agent:
-    def __init__(self, location, map, qTable, policy, actReword, gamma, actSucP, runTime):
+    def __init__(self, startLocation, map, qTable, policy, actReword, gamma, actSucP, runTime):
         self.actions = [0, 1, 2, 3] # Up, Down, Left, Right
-        self.location = location
-        self.x = location[0]
-        self.y = location[1]
+        
+        self.startLocation = deepcopy(startLocation)
         self.map = deepcopy(map)
         self.qTable = deepcopy(qTable)
-        self.policy = policy
+        self.policy = deepcopy(policy)
         self.heatMap = deepcopy(self.map)
 
         self.actReword = actReword
@@ -20,10 +19,13 @@ class Agent:
         self.actSucP = actSucP
         self.totalRuntime = runTime
 
+        self.currentLocation = deepcopy(startLocation)
 
+        
+
+    # need to implement
     def learn(self):
-        x = self.location[0]
-        y = self.location[1]
+        x = 1 # doesn't mean anything
 
 
 
@@ -33,7 +35,7 @@ class Agent:
     # print different output
     def printMap(self):
         tmp = deepcopy(self.map)
-        tmp[self.location[0]][self.location[1]] = 'A'        
+        tmp[self.currentLocation[0]][self.currentLocation[1]] = 'A'        
         for x in tmp:  # outer loop
             for i in x:  # inner loop
                 print(i, end="\t")  # print the elements
