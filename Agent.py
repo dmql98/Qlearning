@@ -39,6 +39,7 @@ class Agent:
             while not self.terminated():
                 randAct = random.choice(self.actions)
                 self.takeAction(self.currentLocation, randAct)
+                self.updateHeatMap(self.currentLocation)
 
                 reword = round(reword + self.actReword, 2)
 
@@ -74,7 +75,6 @@ class Agent:
 
     # update Policy tabel based on current Q-Table
     def updatePolicy(self):
-        P = []
         x = 0
         y = 0
         for row in self.qTable:
@@ -93,7 +93,48 @@ class Agent:
                 print(i, end="\t")  # print the elements
             print('')
 
-    def printHeatmap(self):
+
+    def updateHeatMap(self, currentLocation):
+        x = currentLocation[0]
+        y = currentLocation[1]
+        if  self.map[x][y] == 0:
+            self.heatMap[x][y] += 1
+    
+    
+    def printHeatmapVisitTimes(self):
+        for x in self.heatMap:  # outer loop
+            for i in x:  # inner loop
+                print(i, end="\t")  # print the elements
+            print('')
+
+    def getHeatmapTotalVisits(self):
+        x = 0
+        y = 0
+        totalVists = 0
+        for row in self.map:
+            x += 1
+            y = 0
+            for value in row:
+                y += 1
+                if value == 0:
+                    totalVists += self.heatMap[x-1][y-1]
+        return totalVists
+        
+    def changeHeatmapIntoPercent(self):
+        totalVisit = self.getHeatmapTotalVisits()
+        x = 0
+        y = 0
+        for row in self.map:
+            x += 1
+            y = 0
+            for i in row:
+                y += 1
+                if i == 0:
+                    tmpValue = deepcopy(self.heatMap[x-1][y-1])
+                    self.heatMap[x-1][y-1] = str(round(tmpValue/totalVisit * 100)) + '%'
+        
+    def printHeatmapPercent(self):
+        self.changeHeatmapIntoPercent()
         for x in self.heatMap:  # outer loop
             for i in x:  # inner loop
                 print(i, end="\t")  # print the elements
