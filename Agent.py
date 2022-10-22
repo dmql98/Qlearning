@@ -8,6 +8,7 @@ class Agent:
     def __init__(self, startLocation, map, qTable, policy, actReword, gamma, actSucP, runTime):
         self.actions = [0, 1, 2, 3] # Up, Down, Left, Right
         self.policyDirections = ['^', 'v', '<', '>']
+        self.startTime = time.time()
 
         self.startLocation = deepcopy(startLocation)
         self.map = deepcopy(map)
@@ -29,20 +30,28 @@ class Agent:
         x = 1 # doesn't mean anything
 
 
+
     def explore(self):
-        reword = 0.0
-        while not self.terminated():
-            randAct = random.choice(self.actions)
-            self.takeAction(self.currentLocation, randAct)
+        while (time.time() - self.startTime) < self.totalRuntime:
+            self.currentLocation = deepcopy(self.startLocation)
+            reword = 0.0
 
-            reword = round(reword + self.actReword, 2)
+            while not self.terminated():
+                randAct = random.choice(self.actions)
+                self.takeAction(self.currentLocation, randAct)
 
-            print('=========================================', self.policyDirections[randAct])
-            print('agent current location: ', self.currentLocation, '//  terminated?', self.terminated(), 'Point: ', reword)
-            self.printMap()
-        reword = round(reword + self.getTerminatedReword(self.currentLocation), 2)
-        self.rewordsRecord.append(reword)
-        print('Point', self.rewordsRecord[0])
+                reword = round(reword + self.actReword, 2)
+
+                print('=========================================', self.policyDirections[randAct])
+                print('agent current location: ', self.currentLocation, '//  terminated?', self.terminated(), 'Point: ', reword)
+                self.printMap()
+
+            reword = round(reword + self.getTerminatedReword(self.currentLocation), 2)
+            self.rewordsRecord.append(reword)
+        
+        print(time.time() - self.startTime)
+        print('Point', self.rewordsRecord)
+        print('Point', max(self.rewordsRecord))
 
 
 
@@ -63,7 +72,22 @@ class Agent:
                 print(i, end="\t")  # print the elements
             print('')
 
+    # update Policy tabel based on current Q-Table
+    def updatePolicy(self):
+        P = []
+        x = 0
+        y = 0
+        for row in self.qTable:
+            x += 1
+            y = 0
+            for value in row:
+                y += 1
+                if isinstance(value, list) and value != [0.0, 0.0, 0.0, 0.0]:
+                    self.policy[x-1][y-1] = self.policyDirections[self.getActionFromQtable([x-1, y-1])]
+
+    # Print the policy table.
     def printPolicy(self):
+        self.updatePolicy()
         for x in self.policy:  # outer loop
             for i in x:  # inner loop
                 print(i, end="\t")  # print the elements

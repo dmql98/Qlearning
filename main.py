@@ -12,7 +12,7 @@ print('input here:')
 filename = 'map.csv'
 action = -0.04
 gamma = 0.9
-runTime = 20.0
+runTime = 1.0
 P = 0.9
 print('===========================')
 
@@ -34,14 +34,15 @@ print('===========================  \n exploring test' )
 agent.explore()
 
 
+
 # print the current agent location on map and if it is terminated
 # print('agent current location: ', agent.currentLocation, '//  terminated?', agent.terminated())
 
 
 
-# # final result
-# print('===========================', '\n Policy')
-# agent.printPolicy()
+# final result
+print('===========================', '\n Policy')
+agent.printPolicy()
 
 # print('===========================', '\n Heatmap')
 # agent.printHeatmap()
