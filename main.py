@@ -18,7 +18,7 @@ print('===========================')
 
 # init
 table = Table(filename)
-agent = Agent(table.sP, table.map, table.qTable,table.policy, action, gamma, P, runTime)
+agent = Agent(table.startingPoint, table.map, table.qTable, table.policy, action, gamma, P, runTime)
 
 # Test output
 print('===========================')

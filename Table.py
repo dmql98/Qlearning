@@ -5,32 +5,34 @@ class Table:
     def __init__(self, filename):
         self.map = readCSV(filename)
         self.qTable = generateQTable(filename)
-        self.sP = getStartingPoint(filename)
+        self.startingPoint = getStartingPoint(filename)
         self.policy = generatePolicy(filename)
 
 
-    # print different output
-    def printMap(self):
-        for x in self.map:  # outer loop
-            for i in x:  # inner loop
-                print(i, end="\t")  # print the elements
-            print('')
+    # # =========================================================================================================
+    # # Not gonna use this part, just for file reading test.
+    # def printMap(self):
+    #     for x in self.map:  # outer loop
+    #         for i in x:  # inner loop
+    #             print(i, end="\t")  # print the elements
+    #         print('')
     
             
-    def printQTable(self):
-        for x in self.qTable:  # outer loop
-            for i in x:  # inner loop
-                print(i, end="\t")  # print the elements
-            print('')
+    # def printQTable(self):
+    #     for x in self.qTable:  # outer loop
+    #         for i in x:  # inner loop
+    #             print(i, end="\t")  # print the elements
+    #         print('')
 
-    def printMaxQTable(self):
-        for x in self.qTable:  # outer loop
-            for i in x:  # inner loop
-                if isinstance(i, list):
-                    print(max(i), end="\t")  # print the elements
-                else:
-                    print(i, end="\t")  # print the elements
-            print('')
+    # def printMaxQTable(self):
+    #     for x in self.qTable:  # outer loop
+    #         for i in x:  # inner loop
+    #             if isinstance(i, list):
+    #                 print(max(i), end="\t")  # print the elements
+    #             else:
+    #                 print(i, end="\t")  # print the elements
+    #         print('')
+    # # =========================================================================================================
 
             
 

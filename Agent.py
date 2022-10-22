@@ -108,7 +108,6 @@ class Agent:
         self.location = location # update location
     
 
-
     def takeAction(self, currentLocation, action):
         if action == 0:  # Up
             self.moveUp(currentLocation)
@@ -121,7 +120,6 @@ class Agent:
             
 
 
-    
     def terminated(self, location, map):
         if ((map[location[0]][location[1]]) == 0):
             return False
