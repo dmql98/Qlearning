@@ -1,6 +1,14 @@
 from copy import copy, deepcopy
 import csv
 
+# use this to read the .csv table file
+# generate different tables:
+#   map:            map for agent to explore
+#   qTable :        qTable
+#   startingPoint:  the starting point of the agent
+#   policy:         policy
+
+
 class Table:
     def __init__(self, filename):
         self.map = readCSV(filename)
