@@ -1,11 +1,12 @@
 import random
+import time
 from copy import deepcopy
-
 
 
 class Agent:
     def __init__(self, startLocation, map, qTable, policy, actReword, gamma, actSucP, runTime):
         self.actions = [0, 1, 2, 3] # Up, Down, Left, Right
+        self.policyDirections = ['^', 'v', '<', '>']
         
         self.startLocation = deepcopy(startLocation)
         self.map = deepcopy(map)
@@ -27,6 +28,12 @@ class Agent:
         x = 1 # doesn't mean anything
 
 
+    def explore(self):
+        while not self.terminated():
+            randAct = random.choice(self.actions)
+            self.takeAction(self.currentLocation, randAct)
+            self.printMap()
+            print('=========================================', self.policyDirections[randAct])
 
 
 
@@ -119,8 +126,8 @@ class Agent:
             
 
 
-    def terminated(self, location, map):
-        if ((map[location[0]][location[1]]) == 0):
+    def terminated(self):
+        if ((self.map[self.currentLocation[0]][self.currentLocation[1]]) == 0):
             return False
         else:
             return True

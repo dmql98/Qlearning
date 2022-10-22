@@ -20,30 +20,36 @@ print('===========================')
 table = Table(filename)
 agent = Agent(table.startingPoint, table.map, table.qTable, table.policy, action, gamma, P, runTime)
 
-# Test output
+# # Test output
 print('===========================')
 print('place agent into the map')
 agent.printMap()# this is the table with agent on it
 
-print('===========================', '\n Qtable')
-agent.printQTable()
+# print('===========================', '\n Qtable')
+# agent.printQTable()
 
-# moving test
+# # moving test
 print('===========================  \n MovingTest' )
-agent.takeAction(agent.currentLocation, 0) # 0: Up, 1:Down, 2:Left, 3:Right
-agent.takeAction(agent.currentLocation, 0)
-agent.printMap()
+# agent.takeAction(agent.currentLocation, 0) # 0: Up, 1:Down, 2:Left, 3:Right
+# agent.takeAction(agent.currentLocation, 0)
+# agent.takeAction(agent.currentLocation, 3)
+# agent.takeAction(agent.currentLocation, 3)
+# agent.printMap()
+
+# exploring test
+agent.explore()
+
 # print the current agent location on map and if it is terminated
-print('agent location: ', agent.location, '//  terminated?', agent.terminated(agent.location, agent.map))
+print('agent current location: ', agent.currentLocation, '//  terminated?', agent.terminated())
 
 
 
-# final result
-print('===========================', '\n Policy')
-agent.printPolicy()
+# # final result
+# print('===========================', '\n Policy')
+# agent.printPolicy()
 
-print('===========================', '\n Heatmap')
-agent.printHeatmap()
+# print('===========================', '\n Heatmap')
+# agent.printHeatmap()
 
 
 
