@@ -20,22 +20,26 @@ print('===========================')
 table = Table(filename)
 agent = Agent(table.sP, table.map, table.qTable,table.policy, action, gamma, P, runTime)
 
-
-
-# # empty map with no agent
-# print('empty map with no agent')
-# table.printMap()
-# print('starting point: ', agent.location)
-
-
+# Test output
 print('===========================')
 print('place agent into the map')
 agent.printMap()# this is the table with agent on it
 
-
 print('===========================', '\n Qtable')
 agent.printQTable()
 
+# moving test
+print('===========================  \n MovingTest' )
+agent.takeAction(agent.currentLocation, 0) # 0: Up, 1:Down, 2:Left, 3:Right
+agent.takeAction(agent.currentLocation, 0)
+agent.printMap()
+# print the current agent location on map and if it is terminated
+print('agent location: ', agent.location, '//  terminated?', agent.terminated(agent.location, agent.map))
+
+
+
+
+# final result
 print('===========================', '\n Policy')
 agent.printPolicy()
 
@@ -44,11 +48,5 @@ agent.printHeatmap()
 
 
 
-# moving test
-print('===========================  \n MovingTest' )
-agent.takeAction(agent.currentLocation, 0) # 0: Up, 1:Down, 2:Left, 3:Right
-agent.takeAction(agent.currentLocation, 0)
-agent.printMap()
 
-# print the current agent location on map and if it is terminated
-print('agent location: ', agent.location, '//  terminated?', agent.terminated(agent.location, agent.map))
+
