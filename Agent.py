@@ -31,11 +31,12 @@ class Agent:
     def learn(self):
         x = 1 # doesn't mean anything
 
+    
+    # now the agent will only randomly moving around the map
     def explore(self):
         while (time.time() - self.startTime) < self.totalRuntime:
             self.currentLocation = deepcopy(self.startLocation)
             reword = 0.0
-
             while not self.terminated():
                 nextAct = random.choice(self.actions)
                 self.updateQTable(self.currentLocation, nextAct)
@@ -45,23 +46,21 @@ class Agent:
                 x = self.currentLocation[0]
                 y = self.currentLocation[1]
                 list = self.qTable[x][y]
-                
+        
                 # Q-learning function
-
                 reword = round(reword + self.actReword, 2)
-
-                print('=========================================', self.policyDirections[nextAct])
-                print('agent current location: ', self.currentLocation, '//  terminated?', self.terminated(), 'Point: ', reword)
-                self.printMap()
-                self.printMaxQTable()
+                # print('=========================================', self.policyDirections[nextAct])
+                # print('agent current location: ', self.currentLocation, '//  terminated?', self.terminated(), 'Point: ', reword)
+                # self.printMap()
+                # self.printMaxQTable()
 
             reword = round(reword + self.getTerminatedReword(self.currentLocation), 2)
             self.rewordsRecord.append(reword)
             self.totalReword += reword
         
-        print(time.time() - self.startTime)
-        print('Point', self.rewordsRecord)
-        print('Point', max(self.rewordsRecord))
+        # print(time.time() - self.startTime)
+        # print('Point', self.rewordsRecord)
+        # print('Point', max(self.rewordsRecord))
 
 
 
@@ -179,7 +178,6 @@ class Agent:
         
         elif isinstance(self.qTable[nx][ny], int):
             currentValue = deepcopy(self.qTable[cx][cy][nextAct])
-            print(currentValue)
             self.qTable[cx][cy][nextAct] = round(currentValue + self.learningRate * (self.actReword + self.gamma * nextLocationList - currentValue), 2)
 
     def outOfGrid(self, row, col):
