@@ -14,11 +14,12 @@ action = -0.04
 gamma = 0.9
 runTime = 1.0
 P = 0.9
+learningRate = 0.1
 print('===========================')
 
 # init
 table = Table(filename)
-agent = Agent(table.startingPoint, table.map, table.qTable, table.policy, action, gamma, P, runTime)
+agent = Agent(table.startingPoint, table.map, table.qTable, table.policy, action, learningRate, gamma, P, runTime)
 
 # # Test output
 print('===========================')
@@ -26,8 +27,7 @@ print('place agent into the map')
 agent.printMap()# this is the table with agent on it
 
 
-# print('===========================', '\n Qtable')
-# agent.printMaxQTable()
+
 
 # exploring test
 print('===========================  \n exploring test' )
@@ -38,7 +38,8 @@ agent.explore()
 # print the current agent location on map and if it is terminated
 # print('agent current location: ', agent.currentLocation, '//  terminated?', agent.terminated())
 
-
+print('===========================', '\n Qtable')
+agent.printMaxQTable()
 
 # final result
 print('===========================', '\n Policy')
@@ -51,9 +52,3 @@ agent.printHeatmapPercent()
 
 print('===========================')
 agent.printMeanReward()
-
-
-
-
-
-

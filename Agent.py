@@ -5,7 +5,7 @@ from copy import deepcopy
 
 
 class Agent:
-    def __init__(self, startLocation, map, qTable, policy, actReword, gamma, actSucP, runTime):
+    def __init__(self, startLocation, map, qTable, policy, actReword, learningRate, gamma, actSucP, runTime):
         self.actions = [0, 1, 2, 3] # Up, Down, Left, Right
         self.policyDirections = ['^', 'v', '<', '>']
         self.startTime = time.time()
@@ -16,6 +16,7 @@ class Agent:
         self.policy = deepcopy(policy)
         self.heatMap = deepcopy(self.map)
         self.actReword = actReword
+        self.learningRate = learningRate
         self.gamma = gamma
         self.actSucP = actSucP
         self.totalRuntime = runTime
@@ -36,15 +37,23 @@ class Agent:
             reword = 0.0
 
             while not self.terminated():
-                randAct = random.choice(self.actions)
-                self.takeAction(self.currentLocation, randAct)
+                nextAct = random.choice(self.actions)
+                self.updateQTable(self.currentLocation, nextAct)
+
+                self.takeAction(self.currentLocation, nextAct)
                 self.updateHeatMap(self.currentLocation)
+                x = self.currentLocation[0]
+                y = self.currentLocation[1]
+                list = self.qTable[x][y]
+                
+                # Q-learning function
 
                 reword = round(reword + self.actReword, 2)
 
-                print('=========================================', self.policyDirections[randAct])
+                print('=========================================', self.policyDirections[nextAct])
                 print('agent current location: ', self.currentLocation, '//  terminated?', self.terminated(), 'Point: ', reword)
                 self.printMap()
+                self.printMaxQTable()
 
             reword = round(reword + self.getTerminatedReword(self.currentLocation), 2)
             self.rewordsRecord.append(reword)
@@ -154,10 +163,24 @@ class Agent:
 
             
     # update
-    def updateQTable(self, location, array):
-        x = location[0]
-        y = location[1]
-        self.qTable[x][y] = array
+    def updateQTable(self, currentLocation, nextAct):
+        cx = currentLocation[0]
+        cy = currentLocation[1]
+        nextLocation = deepcopy(self.getNextLocation(currentLocation, nextAct))
+        nx = nextLocation[0]
+        ny = nextLocation[1]
+
+        nextLocationList = deepcopy(self.qTable[nx][ny])
+        currentList = deepcopy(self.qTable[cx][cy])
+
+        if isinstance(self.qTable[nx][ny], list):
+            currentValue = deepcopy(self.qTable[cx][cy][nextAct])
+            self.qTable[cx][cy][nextAct] = round(currentValue + self.learningRate * (self.actReword + self.gamma * max(nextLocationList) - currentValue), 2)
+        
+        elif isinstance(self.qTable[nx][ny], int):
+            currentValue = deepcopy(self.qTable[cx][cy][nextAct])
+            print(currentValue)
+            self.qTable[cx][cy][nextAct] = round(currentValue + self.learningRate * (self.actReword + self.gamma * nextLocationList - currentValue), 2)
 
     def outOfGrid(self, row, col):
         if (row < 0 or col < 0) or (row >= len(self.map)  or col >= len(self.map[0]) or self.map[row][col] == 'X'):
@@ -186,6 +209,47 @@ class Agent:
         if not self.outOfGrid(location[0], location[1] - 1):
             location[1] -= 1 # move
         self.location = location # update location
+
+
+    def getMoveUpLocation(self, currentLocation):
+        nextLocation = deepcopy(currentLocation)
+        if not self.outOfGrid(nextLocation[0] - 1, nextLocation[1]):
+            nextLocation[0] -= 1 # move
+        return nextLocation
+    
+    def getMoveDownLocation(self, currentLocation):
+        nextLocation = deepcopy(currentLocation)
+        if not self.outOfGrid(nextLocation[0] + 1, nextLocation[1]):
+            nextLocation[0] += 1 # move
+        return nextLocation
+    
+
+    def getMoveRightLocation(self, currentLocation):
+        nextLocation = deepcopy(currentLocation)
+        if not self.outOfGrid(nextLocation[0], nextLocation[1] + 1):
+            nextLocation[1] += 1 # move
+        return nextLocation
+    
+
+    def getMoveLeftLocation(self, currentLocation):
+        nextLocation = deepcopy(currentLocation)
+        if not self.outOfGrid(nextLocation[0], nextLocation[1] - 1):
+            nextLocation[1] -= 1 # move
+        return nextLocation
+    
+    def getNextLocation(self, currentLocation, action):
+        if action == 0:
+            nextLocation = self.getMoveUpLocation(currentLocation)
+            return nextLocation
+        elif action == 1:
+            nextLocation = self.getMoveDownLocation(currentLocation)
+            return nextLocation
+        elif action == 2:
+            nextLocation = self.getMoveLeftLocation(currentLocation)
+            return nextLocation
+        elif action == 3:
+            nextLocation = self.getMoveRightLocation(currentLocation)
+            return nextLocation
     
     # take the Action 0:Up, 1:Down, 2:Left, 3:Right
     def takeAction(self, currentLocation, action):
