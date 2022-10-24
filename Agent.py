@@ -30,9 +30,9 @@ class Agent:
     # need to implement
     def learn(self):
         while (time.time() - self.startTime) < self.totalRuntime:
-            while (time.time() - self.startTime) < self.totalRuntime / 2:
+            if (time.time() - self.startTime) < self.totalRuntime / 2:
                 self.explore()
-            while (time.time() - self.startTime) > self.totalRuntime / 2:
+            else:
                 self.exploit()
 
 

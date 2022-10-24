@@ -32,7 +32,7 @@ agent.printMap()# this is the table with agent on it
 
 # exploring test
 print('===========================================  \n Learning..............' )
-agent.explore()
+agent.learn()
 
 
 
