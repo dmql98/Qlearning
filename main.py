@@ -10,12 +10,19 @@ print('input here:')
 # gamma =  float(input("Enter Gamma: "))
 # runTime = float(input("How many seconds to run for: "))
 # P = float(input("Enter P(action succeeds) : "))
-filename = 'map.csv'
+filename = 'test_map.tsv'
 action = -0.04
 gamma = 0.9
 learningRate = 0.1
-runTime = 1.0
-P = 0.9
+runTime = 5.0
+P = 0.0
+
+print('Reading Filename: ', filename)
+print('Reward Per Action: ', action)
+print('Gamma: ', gamma)
+print('How Many Seconds to Run For: ', runTime)
+print('P(Action Succeeds/Transition Model: ', P)
+print('Learning Rate: ', learningRate)
 print('===========================================')
 
 # init
@@ -41,6 +48,8 @@ agent.learn()
 
 print('===========================', '\n Qtable')
 agent.printMaxQTable()
+print()
+agent.printQTable()
 
 # final result
 print('===========================================', '\n Policy')
@@ -53,3 +62,7 @@ agent.printHeatmapPercent()
 
 print('===========================================')
 agent.printMeanReward()
+
+# print("Did the Correct Thing: ", agent.rightMove/agent.totalMoves)
+# print("Moved Twice: ", agent.movedTwice/agent.totalMoves)
+# print("Moved Backward: ", agent.movedBackward/agent.totalMoves)
