@@ -29,12 +29,41 @@ class Agent:
 
     # need to implement
     def learn(self):
-        x = 1 # doesn't mean anything
+        while (time.time() - self.startTime) < self.totalRuntime:
+            while (time.time() - self.startTime) < self.totalRuntime / 2:
+                self.explore()
+            while (time.time() - self.startTime) > self.totalRuntime / 2:
+                self.exploit()
+
+
+
+    def exploit(self):
+        self.currentLocation = deepcopy(self.startLocation)
+        reword = 0.0
+        while not self.terminated():
+            nextAct = self.getBestActionFromQtable(self.currentLocation)
+            self.updateQTable(self.currentLocation, nextAct)
+
+            self.takeAction(self.currentLocation, nextAct)
+            self.updateHeatMap(self.currentLocation)
+            x = self.currentLocation[0]
+            y = self.currentLocation[1]
+            list = self.qTable[x][y]
+    
+            # Q-learning function
+            reword = round(reword + self.actReword, 2)
+            # print('=========================================', self.policyDirections[nextAct])
+            # print('agent current location: ', self.currentLocation, '//  terminated?', self.terminated(), 'Point: ', reword)
+            # self.printMap()
+            # self.printMaxQTable()
+
+        reword = round(reword + self.getTerminatedReword(self.currentLocation), 2)
+        self.rewordsRecord.append(reword)
+        self.totalReword += reword
 
     
     # now the agent will only randomly moving around the map
     def explore(self):
-        while (time.time() - self.startTime) < self.totalRuntime:
             self.currentLocation = deepcopy(self.startLocation)
             reword = 0.0
             while not self.terminated():
@@ -91,7 +120,7 @@ class Agent:
             for value in row:
                 y += 1
                 if isinstance(value, list) and value != [0.0, 0.0, 0.0, 0.0]:
-                    self.policy[x-1][y-1] = self.policyDirections[self.getActionFromQtable([x-1, y-1])]
+                    self.policy[x-1][y-1] = self.policyDirections[self.getBestActionFromQtable([x-1, y-1])]
 
     # Print the policy table.
     def printPolicy(self):
@@ -262,7 +291,7 @@ class Agent:
 
     # getters        
     # get the index of the best action from Q-table
-    def getActionFromQtable(self, currentLocation):
+    def getBestActionFromQtable(self, currentLocation):
         x = currentLocation[0]
         y = currentLocation[1]
         input_list = self.qTable[x][y]
