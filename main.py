@@ -15,7 +15,7 @@ action = -0.04
 gamma = 0.9
 learningRate = 0.1
 runTime = 5.0
-P = 0.0
+P = 0.9
 
 print('Reading Filename: ', filename)
 print('Reward Per Action: ', action)
@@ -55,10 +55,13 @@ agent.printQTable()
 print('===========================================', '\n Policy')
 agent.printPolicy()
 
-print('===========================================', '\n Heatmap')
+# print('===========================================', '\n Heatmap times')
 # agent.printHeatmapVisitTimes()
 # print('total visit', agent.getHeatmapTotalVisits())
+print('===========================================', '\n Heatmap  %')
 agent.printHeatmapPercent()
+
+
 
 print('===========================================')
 agent.printMeanReward()
