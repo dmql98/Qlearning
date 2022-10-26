@@ -10,7 +10,7 @@ print('input here:')
 # gamma =  float(input("Enter Gamma: "))
 # runTime = float(input("How many seconds to run for: "))
 # P = float(input("Enter P(action succeeds) : "))
-filename = 'test_map.tsv'
+filename = 'intermediate.txt'
 action = -0.04
 gamma = 0.9
 learningRate = 0.1
