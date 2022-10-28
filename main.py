@@ -15,6 +15,7 @@ action = -0.04
 gamma = 0.7
 learningRate = 0.1
 runTime = 1
+# Transition Model, the rate of doing correct move
 P = 0
 
 print('Reading Filename: ', filename)

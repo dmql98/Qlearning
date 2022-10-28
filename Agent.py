@@ -25,6 +25,7 @@ class Agent:
         self.totalRuntime = runTime
         self.totalCells = len(self.map) * len(self.map[0])
 
+        # greedy epsilon
         self.exploreRate = 0.0
 
         self.exploreRecordMap = deepcopy(policy)
