@@ -1,3 +1,4 @@
+from http.client import UnknownProtocol
 import math
 import random
 import time
@@ -9,6 +10,7 @@ class Agent:
     def __init__(self, startLocation, map, qTable, policy, actReword, learningRate, gamma, actSucP, runTime):
         self.actions = [0, 1, 2, 3] # Up, Down, Left, Right
         self.policyDirections = ['^', 'v', '<', '>']
+        self.currentMode = 'explore'
         self.startTime = time.time()
 
         self.startLocation = deepcopy(startLocation)
@@ -21,10 +23,20 @@ class Agent:
         self.gamma = gamma
         self.actSucP = actSucP
         self.totalRuntime = runTime
+        self.totalCells = len(self.map) * len(self.map[0])
+        self.exploreRate = 0.3
+        self.exploreRecordMap = deepcopy(policy)
 
         self.currentLocation = deepcopy(startLocation)
         self.rewordsRecord = []
         self.totalReword = 0
+        self.knownPlaces = 0
+
+        self.reachAblePlace = 0
+        self.getReachablePlace()
+
+        self.exploreTime = 0
+
 
         self.rightMove = 0
         self.totalMoves = 0
@@ -33,23 +45,66 @@ class Agent:
 
 
 
-    # need to implement
     def learn(self):
+        outputFile = open("data.txt", "a")
+        HundredMSCounter = time.time()
+
         while (time.time() - self.startTime) < self.totalRuntime:
-            if (time.time() - self.startTime) < self.totalRuntime * 0.2:
-                self.explore()
+            # output data
+            if time.time() - HundredMSCounter > 0.1:
+                outputFile.write(str(round(self.totalReword/len(self.rewordsRecord), 2)))
+                outputFile.write('\n')
+                HundredMSCounter = time.time()
+
+            
+            if self.knownPlaces > (int(self.reachAblePlace * 0.8)):
+                self.currentMode = 'exploit'
+
             else:
-                self.exploit()
+                self.currentMode = 'explore'
+                if (time.time() - self.startTime) > self.totalRuntime * 0.2:
+                    self.currentMode = 'exploit'
+            
+            # self.currentMode = 'exploit'
+
+
+            if self.currentMode == 'explore':
+                self.explore()
+                self.exploreTime += 1
+
+            else:
+                self.exploit(self.exploreRate)
+            
+
+        
+
+    # explore base on time
+    # def learn(self):
+
+    #     while (time.time() - self.startTime) < self.totalRuntime:
+    #         if (time.time() - self.startTime) > self.totalRuntime * 0.2:
+    #             self.exploit(self.exploreRate)
+    #             # print('Exploit......')
+    #         else:
+    #             self.explore()
+    #             # print('Explore!!')
+    #             self.exploreTime += 1
 
 
 
-    def exploit(self):
+    def exploit(self, exploreRate):
         self.currentLocation = deepcopy(self.startLocation)
         reword = 0.0
         while not self.terminated():
-            nextAct = self.getBestActionFromQtable(self.currentLocation)
-            
+            self.updateExploreRecord()
 
+            rand = random.uniform(0, 1)
+            if rand < exploreRate:
+                nextAct = random.choice(self.actions)
+            else:
+                nextAct = self.getBestActionFromQtable(self.currentLocation)
+
+            
             preLocation = deepcopy(self.currentLocation)
 
             self.takeAction(self.currentLocation, nextAct)
@@ -78,13 +133,13 @@ class Agent:
             self.currentLocation = deepcopy(self.startLocation)
             reword = 0.0
             while not self.terminated():
+                self.updateExploreRecord()
+
                 nextAct = random.choice(self.actions)
-                
                 preLocation = deepcopy(self.currentLocation)
 
                 self.takeAction(self.currentLocation, nextAct)
                 self.updateQTable(preLocation, nextAct)
-
 
                 self.updateHeatMap(self.currentLocation)
                 x = self.currentLocation[0]
@@ -125,6 +180,12 @@ class Agent:
                 print(i, end="\t")  # print the elements
             print('')
 
+    def printVisitTable(self):
+        for x in self.exploreRecordMap:  # outer loop
+            for i in x:  # inner loop
+                print(i, end="\t")  # print the elements
+            print('')
+
     # update Policy tabel based on current Q-Table
     def updatePolicy(self):
         x = 0
@@ -134,8 +195,12 @@ class Agent:
             y = 0
             for value in row:
                 y += 1
-                if isinstance(value, list) and value != [0.0, 0.0, 0.0, 0.0]:
-                    self.policy[x-1][y-1] = self.policyDirections[self.getBestActionFromQtable([x-1, y-1])]
+                if isinstance(value, list) and (value != [0.0, 0.0, 0.0, 0.0]):
+                        self.policy[x-1][y-1] = self.policyDirections[self.getBestActionFromQtable([x-1, y-1])]
+
+    
+
+
 
     # Print the policy table.
     def printPolicy(self):
@@ -144,6 +209,14 @@ class Agent:
             for i in x:  # inner loop
                 print(i, end="\t")  # print the elements
             print('')
+
+            
+    def updateExploreRecord(self):
+        x = self.currentLocation[0]
+        y = self.currentLocation[1]
+        if self.exploreRecordMap[x][y] == '?':
+            self.exploreRecordMap[x][y] = 'V'
+            self.knownPlaces += 1
 
 
     def updateHeatMap(self, currentLocation):
@@ -202,13 +275,18 @@ class Agent:
             print('')
 
     def printMeanReward(self):
+        if len(self.rewordsRecord) == self.exploreTime:
+            print('The map is too large... Please give me more time')
+            print('Or maybe, check if all the places in this map is accessable.')
+        
+        print('Total trails:', len(self.rewordsRecord))
+        print('Total starting explore trails:', self.exploreTime)
         print('Mean Reward per Trial:', round(self.totalReword/len(self.rewordsRecord), 2))
 
-
     # update
-    def updateQTable(self, prelocation, nextAct):
-        cx = prelocation[0]
-        cy = prelocation[1]
+    def updateQTable(self, preLocation, nextAct):
+        cx = preLocation[0]
+        cy = preLocation[1]
         nx = self.currentLocation[0]
         ny = self.currentLocation[1]
 
@@ -358,10 +436,16 @@ class Agent:
         y = currentLocation[1]
         finalReword = self.map[x][y]
         return finalReword
-
+    
+    def getReachablePlace(self):
+        for row in self.qTable:
+            for value in row:
+                if isinstance(value, list):
+                    self.reachAblePlace += 1
 
     def terminated(self):
         if ((self.map[self.currentLocation[0]][self.currentLocation[1]]) == 0):
             return False
         else:
             return True
+
