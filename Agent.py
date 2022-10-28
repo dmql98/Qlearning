@@ -48,9 +48,14 @@ class Agent:
         reword = 0.0
         while not self.terminated():
             nextAct = self.getBestActionFromQtable(self.currentLocation)
-            self.updateQTable(self.currentLocation, nextAct)
+            
+
+            preLocation = deepcopy(self.currentLocation)
 
             self.takeAction(self.currentLocation, nextAct)
+            self.updateQTable(preLocation, nextAct)
+
+
             self.updateHeatMap(self.currentLocation)
             x = self.currentLocation[0]
             y = self.currentLocation[1]
@@ -74,9 +79,13 @@ class Agent:
             reword = 0.0
             while not self.terminated():
                 nextAct = random.choice(self.actions)
-                self.updateQTable(self.currentLocation, nextAct)
+                
+                preLocation = deepcopy(self.currentLocation)
 
                 self.takeAction(self.currentLocation, nextAct)
+                self.updateQTable(preLocation, nextAct)
+
+
                 self.updateHeatMap(self.currentLocation)
                 x = self.currentLocation[0]
                 y = self.currentLocation[1]
@@ -197,12 +206,11 @@ class Agent:
 
 
     # update
-    def updateQTable(self, currentLocation, nextAct):
-        cx = currentLocation[0]
-        cy = currentLocation[1]
-        nextLocation = deepcopy(self.getNextLocation(currentLocation, nextAct))
-        nx = nextLocation[0]
-        ny = nextLocation[1]
+    def updateQTable(self, prelocation, nextAct):
+        cx = prelocation[0]
+        cy = prelocation[1]
+        nx = self.currentLocation[0]
+        ny = self.currentLocation[1]
 
         nextLocationList = deepcopy(self.qTable[nx][ny])
         currentList = deepcopy(self.qTable[cx][cy])

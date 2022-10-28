@@ -10,12 +10,12 @@ print('input here:')
 # gamma =  float(input("Enter Gamma: "))
 # runTime = float(input("How many seconds to run for: "))
 # P = float(input("Enter P(action succeeds) : "))
-filename = 'intermediate.txt'
+filename = 'test.tsv'
 action = -0.04
-gamma = 0.9
+gamma = 0.7
 learningRate = 0.1
-runTime = 5.0
-P = 0.9
+runTime = 1
+P = 0
 
 print('Reading Filename: ', filename)
 print('Reward Per Action: ', action)
@@ -48,7 +48,6 @@ agent.learn()
 
 print('===========================', '\n Qtable')
 agent.printMaxQTable()
-print()
 agent.printQTable()
 
 # final result
