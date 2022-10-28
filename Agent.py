@@ -24,7 +24,9 @@ class Agent:
         self.actSucP = actSucP
         self.totalRuntime = runTime
         self.totalCells = len(self.map) * len(self.map[0])
-        self.exploreRate = 0.3
+
+        self.exploreRate = 0.0
+
         self.exploreRecordMap = deepcopy(policy)
 
         self.currentLocation = deepcopy(startLocation)
@@ -95,14 +97,14 @@ class Agent:
     def exploit(self, exploreRate):
         self.currentLocation = deepcopy(self.startLocation)
         reword = 0.0
-        while not self.terminated():
+        while not self.terminated() and (time.time() - self.startTime) < self.totalRuntime:
             self.updateExploreRecord()
 
             rand = random.uniform(0, 1)
-            if rand < exploreRate:
-                nextAct = random.choice(self.actions)
-            else:
+            if rand >= exploreRate:
                 nextAct = self.getBestActionFromQtable(self.currentLocation)
+            else:
+                nextAct = random.choice(self.actions)
 
             
             preLocation = deepcopy(self.currentLocation)
@@ -132,7 +134,7 @@ class Agent:
     def explore(self):
             self.currentLocation = deepcopy(self.startLocation)
             reword = 0.0
-            while not self.terminated():
+            while not self.terminated() and (time.time() - self.startTime) < self.totalRuntime:
                 self.updateExploreRecord()
 
                 nextAct = random.choice(self.actions)
