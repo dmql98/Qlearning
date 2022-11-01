@@ -6,8 +6,8 @@ from copy import deepcopy
 
 
 class Agent:
-    def __init__(self, startLocation, map, qTable, policy, actReword, learningRate, gamma, actSucP, runTime):
-        self.actions = [0, 1, 2, 3] # Up, Down, Left, Right
+    def __init__(self, startLocation, map, qTable, policy, actReword, learningRate, gamma, actSucP, runTime, wormholes):
+        self.actions = [0, 1, 2, 3]  # Up, Down, Left, Right
         self.policyDirections = ['^', 'v', '<', '>']
         self.startTime = time.time()
 
@@ -21,6 +21,7 @@ class Agent:
         self.gamma = gamma
         self.actSucP = actSucP
         self.totalRuntime = runTime
+        self.wormholes = wormholes
 
         self.currentLocation = deepcopy(startLocation)
         self.rewordsRecord = []
@@ -31,8 +32,6 @@ class Agent:
         self.movedTwice = 0
         self.movedBackward = 0
 
-
-
     # need to implement
     def learn(self):
         while (time.time() - self.startTime) < self.totalRuntime:
@@ -41,20 +40,26 @@ class Agent:
             else:
                 self.exploit()
 
+        # while (time.time() - self.startTime) < self.totalRuntime:
+        #     #Explore or exploit and pass in the percentage of time that agent is exploring
+        #     self.exploreOrExploit(0.4)
 
-
-    def exploit(self):
+    def exploreOrExploit(self, chance):
         self.currentLocation = deepcopy(self.startLocation)
         reword = 0.0
         while not self.terminated():
-            nextAct = self.getBestActionFromQtable(self.currentLocation)
-            
+            # If action = 0 then explore
+            # If action = 1 then exploit
+            explore = random.uniform(0, 1) < chance
+            if explore:
+                nextAct = random.choice(self.actions)
+            else:
+                nextAct = self.getBestActionFromQtable(self.currentLocation)
 
             preLocation = deepcopy(self.currentLocation)
 
             self.takeAction(self.currentLocation, nextAct)
             self.updateQTable(preLocation, nextAct)
-
 
             self.updateHeatMap(self.currentLocation)
             x = self.currentLocation[0]
@@ -72,42 +77,64 @@ class Agent:
         self.rewordsRecord.append(reword)
         self.totalReword += reword
 
+    def exploit(self):
+        self.currentLocation = deepcopy(self.startLocation)
+        reword = 0.0
+        while not self.terminated():
+            nextAct = self.getBestActionFromQtable(self.currentLocation)
+
+            preLocation = deepcopy(self.currentLocation)
+
+            self.takeAction(self.currentLocation, nextAct)
+            self.updateQTable(preLocation, nextAct)
+
+            self.updateHeatMap(self.currentLocation)
+            x = self.currentLocation[0]
+            y = self.currentLocation[1]
+            list = self.qTable[x][y]
+
+            # Q-learning function
+            reword = round(reword + self.actReword, 2)
+            # print('=========================================', self.policyDirections[nextAct])
+            # print('agent current location: ', self.currentLocation, '//  terminated?', self.terminated(), 'Point: ', reword)
+            # self.printMap()
+            # self.printMaxQTable()
+
+        reword = round(reword + self.getTerminatedReword(self.currentLocation), 2)
+        self.rewordsRecord.append(reword)
+        self.totalReword += reword
 
     # now the agent will only randomly moving around the map
     def explore(self):
-            self.currentLocation = deepcopy(self.startLocation)
-            reword = 0.0
-            while not self.terminated():
-                nextAct = random.choice(self.actions)
-                
-                preLocation = deepcopy(self.currentLocation)
+        self.currentLocation = deepcopy(self.startLocation)
+        reword = 0.0
+        while not self.terminated():
+            nextAct = random.choice(self.actions)
 
-                self.takeAction(self.currentLocation, nextAct)
-                self.updateQTable(preLocation, nextAct)
+            preLocation = deepcopy(self.currentLocation)
 
+            self.takeAction(self.currentLocation, nextAct)
+            self.updateQTable(preLocation, nextAct)
 
-                self.updateHeatMap(self.currentLocation)
-                x = self.currentLocation[0]
-                y = self.currentLocation[1]
-                list = self.qTable[x][y]
+            self.updateHeatMap(self.currentLocation)
+            x = self.currentLocation[0]
+            y = self.currentLocation[1]
+            list = self.qTable[x][y]
 
-                # Q-learning function
-                reword = round(reword + self.actReword, 2)
-                # print('=========================================', self.policyDirections[nextAct])
-                # print('agent current location: ', self.currentLocation, '//  terminated?', self.terminated(), 'Point: ', reword)
-                # self.printMap()
-                # self.printMaxQTable()
+            # Q-learning function
+            reword = round(reword + self.actReword, 2)
+            # print('=========================================', self.policyDirections[nextAct])
+            # print('agent current location: ', self.currentLocation, '//  terminated?', self.terminated(), 'Point: ', reword)
+            # self.printMap()
+            # self.printMaxQTable()
 
-            reword = round(reword + self.getTerminatedReword(self.currentLocation), 2)
-            self.rewordsRecord.append(reword)
-            self.totalReword += reword
+        reword = round(reword + self.getTerminatedReword(self.currentLocation), 2)
+        self.rewordsRecord.append(reword)
+        self.totalReword += reword
 
-        # print(time.time() - self.startTime)
-        # print('Point', self.rewordsRecord)
-        # print('Point', max(self.rewordsRecord))
-
-
-
+    # print(time.time() - self.startTime)
+    # print('Point', self.rewordsRecord)
+    # print('Point', max(self.rewordsRecord))
 
     # print different output
     def printMap(self):
@@ -117,7 +144,6 @@ class Agent:
             for i in x:  # inner loop
                 print(i, end="\t")  # print the elements
             print('')
-
 
     def printQTable(self):
         for x in self.qTable:  # outer loop
@@ -135,7 +161,7 @@ class Agent:
             for value in row:
                 y += 1
                 if isinstance(value, list) and value != [0.0, 0.0, 0.0, 0.0]:
-                    self.policy[x-1][y-1] = self.policyDirections[self.getBestActionFromQtable([x-1, y-1])]
+                    self.policy[x - 1][y - 1] = self.policyDirections[self.getBestActionFromQtable([x - 1, y - 1])]
 
     # Print the policy table.
     def printPolicy(self):
@@ -145,13 +171,11 @@ class Agent:
                 print(i, end="\t")  # print the elements
             print('')
 
-
     def updateHeatMap(self, currentLocation):
         x = currentLocation[0]
         y = currentLocation[1]
-        if  self.map[x][y] == 0:
+        if self.map[x][y] == 0:
             self.heatMap[x][y] += 1
-
 
     def printHeatmapVisitTimes(self):
         for x in self.heatMap:  # outer loop
@@ -169,7 +193,7 @@ class Agent:
             for value in row:
                 y += 1
                 if value == 0:
-                    totalVists += self.heatMap[x-1][y-1]
+                    totalVists += self.heatMap[x - 1][y - 1]
         return totalVists
 
     def changeHeatmapIntoPercent(self):
@@ -182,8 +206,8 @@ class Agent:
             for i in row:
                 y += 1
                 if i == 0:
-                    tmpValue = deepcopy(self.heatMap[x-1][y-1])
-                    self.heatMap[x-1][y-1] = str(round(tmpValue/totalVisit * 100)) + '%'
+                    tmpValue = deepcopy(self.heatMap[x - 1][y - 1])
+                    self.heatMap[x - 1][y - 1] = str(round(tmpValue / totalVisit * 100)) + '%'
 
     def printHeatmapPercent(self):
         self.changeHeatmapIntoPercent()
@@ -202,8 +226,7 @@ class Agent:
             print('')
 
     def printMeanReward(self):
-        print('Mean Reward per Trial:', round(self.totalReword/len(self.rewordsRecord), 2))
-
+        print('Mean Reward per Trial:', round(self.totalReword / len(self.rewordsRecord), 2))
 
     # update
     def updateQTable(self, prelocation, nextAct):
@@ -214,68 +237,94 @@ class Agent:
 
         nextLocationList = deepcopy(self.qTable[nx][ny])
         currentList = deepcopy(self.qTable[cx][cy])
-        #When in regular spot
+        # When in regular spot
         if isinstance(self.qTable[nx][ny], list):
             currentValue = deepcopy(self.qTable[cx][cy][nextAct])
-            self.qTable[cx][cy][nextAct] = round(currentValue + self.learningRate * (self.actReword + self.gamma * max(nextLocationList) - currentValue), 2)
-        #When in Terminal Spot
+            self.qTable[cx][cy][nextAct] = round(
+                currentValue + self.learningRate * (self.actReword + self.gamma * max(nextLocationList) - currentValue),
+                2)
+        # When in Terminal Spot
         elif isinstance(self.qTable[nx][ny], int):
             currentValue = deepcopy(self.qTable[cx][cy][nextAct])
-            self.qTable[cx][cy][nextAct] = round(currentValue + self.learningRate * (self.actReword + self.gamma * nextLocationList - currentValue), 2)
+            self.qTable[cx][cy][nextAct] = round(
+                currentValue + self.learningRate * (self.actReword + self.gamma * nextLocationList - currentValue), 2)
 
     def outOfGrid(self, row, col):
-        if (row < 0 or col < 0) or (row >= len(self.map)  or col >= len(self.map[0]) or self.map[row][col] == 'X'):
+        if (row < 0 or col < 0) or (row >= len(self.map) or col >= len(self.map[0]) or self.map[row][col] == 'X'):
             return True
         else:
             return False
 
+    def checkWormhole(self, x, y):
+        for key in self.wormholes:
+            if self.wormholes.get(key)[0] == x and self.wormholes.get(key)[1] == y:
+                return [self.wormholes.get(key)[2], self.wormholes.get(key)[3]]
+            if self.wormholes.get(key)[2] == x and self.wormholes.get(key)[3] == y:
+                return [self.wormholes.get(key)[0], self.wormholes.get(key)[1]]
+        return []
+
     def moveUp(self, location):
         if not self.outOfGrid(location[0] - 1, location[1]):
-            location[0] -= 1 # move
-        self.location = location # update location
+            location[0] -= 1  # move
+        # if stepping into wormhole
+        if len(self.checkWormhole(location[0], location[1])) > 0:
+            newLocation = self.checkWormhole(location[0], location[1])
+            location[0] = newLocation[0]
+            location[1] = newLocation[1]
+        self.location = location  # update location
 
     def moveDown(self, location):
         if not self.outOfGrid(location[0] + 1, location[1]):
-            location[0] += 1 # move
-        self.location = location # update location
-
+            location[0] += 1  # move
+        # if stepping into wormhole
+        if len(self.checkWormhole(location[0], location[1])) > 0:
+            newLocation = self.checkWormhole(location[0], location[1])
+            location[0] = newLocation[0]
+            location[1] = newLocation[1]
+        self.location = location  # update location
 
     def moveRight(self, location):
         if not self.outOfGrid(location[0], location[1] + 1):
-            location[1] += 1 # move
-        self.location = location # update location
-
+            location[1] += 1  # move
+        # if stepping into wormhole
+        if len(self.checkWormhole(location[0], location[1])) > 0:
+            newLocation = self.checkWormhole(location[0], location[1])
+            location[0] = newLocation[0]
+            location[1] = newLocation[1]
+        self.location = location  # update location
 
     def moveLeft(self, location):
         if not self.outOfGrid(location[0], location[1] - 1):
-            location[1] -= 1 # move
-        self.location = location # update location
-
+            location[1] -= 1  # move
+        # if stepping into wormhole
+        if len(self.checkWormhole(location[0], location[1])) > 0:
+            newLocation = self.checkWormhole(location[0], location[1])
+            location[0] = newLocation[0]
+            location[1] = newLocation[1]
+        self.location = location  # update location
 
     def getMoveUpLocation(self, currentLocation):
         nextLocation = deepcopy(currentLocation)
         if not self.outOfGrid(nextLocation[0] - 1, nextLocation[1]):
-            nextLocation[0] -= 1 # move
+            nextLocation[0] -= 1  # move
         return nextLocation
 
     def getMoveDownLocation(self, currentLocation):
         nextLocation = deepcopy(currentLocation)
         if not self.outOfGrid(nextLocation[0] + 1, nextLocation[1]):
-            nextLocation[0] += 1 # move
+            nextLocation[0] += 1  # move
         return nextLocation
-
 
     def getMoveRightLocation(self, currentLocation):
         nextLocation = deepcopy(currentLocation)
         if not self.outOfGrid(nextLocation[0], nextLocation[1] + 1):
-            nextLocation[1] += 1 # move
+            nextLocation[1] += 1  # move
         return nextLocation
-
 
     def getMoveLeftLocation(self, currentLocation):
         nextLocation = deepcopy(currentLocation)
         if not self.outOfGrid(nextLocation[0], nextLocation[1] - 1):
-            nextLocation[1] -= 1 # move
+            nextLocation[1] -= 1  # move
         return nextLocation
 
     def getNextLocation(self, currentLocation, action):
@@ -296,12 +345,12 @@ class Agent:
     def takeAction(self, currentLocation, action):
         self.totalMoves += 1
         doingAction = -1
-        #do the right action the given percent of time
-        if(random.uniform(0,1) < self.actSucP):
+        # do the right action the given percent of time
+        if (random.uniform(0, 1) < self.actSucP):
             self.rightMove += 1
             doingAction = action
             self.move(doingAction, currentLocation, 1)
-        #if the right action cannot be completed
+        # if the right action cannot be completed
         else:
             rand = random.uniform(0, 1)
             # half the time, move the agent two times in indicated direction
@@ -358,7 +407,6 @@ class Agent:
         y = currentLocation[1]
         finalReword = self.map[x][y]
         return finalReword
-
 
     def terminated(self):
         if ((self.map[self.currentLocation[0]][self.currentLocation[1]]) == 0):

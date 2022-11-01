@@ -1,6 +1,7 @@
+import numpy as np
+
 from Agent import Agent
 from Table import Table
-
 
 print('input here:')
 ## get the input from user
@@ -10,12 +11,12 @@ print('input here:')
 # gamma =  float(input("Enter Gamma: "))
 # runTime = float(input("How many seconds to run for: "))
 # P = float(input("Enter P(action succeeds) : "))
-filename = 'test.tsv'
+filename = 'large_test.tsv'
 action = -0.04
-gamma = 0.7
+gamma = 0.9
 learningRate = 0.1
-runTime = 1
-P = 0
+runTime = 20.0
+P = 1.0
 
 print('Reading Filename: ', filename)
 print('Reward Per Action: ', action)
@@ -27,21 +28,17 @@ print('===========================================')
 
 # init
 table = Table(filename)
-agent = Agent(table.startingPoint, table.map, table.qTable, table.policy, action, learningRate, gamma, P, runTime)
+agent = Agent(table.startingPoint, table.map, table.qTable, table.policy, action, learningRate, gamma, P, runTime,
+              table.wormholes)
 
 # # Test output
 print('===========================================')
 print('place agent into the map, A for agent')
-agent.printMap()# this is the table with agent on it
-
-
-
+agent.printMap()  # this is the table with agent on it
 
 # exploring test
-print('===========================================  \n Learning..............' )
+print('===========================================  \n Learning..............')
 agent.learn()
-
-
 
 # print the current agent location on map and if it is terminated
 # print('agent current location: ', agent.currentLocation, '//  terminated?', agent.terminated())
@@ -60,11 +57,5 @@ agent.printPolicy()
 print('===========================================', '\n Heatmap  %')
 agent.printHeatmapPercent()
 
-
-
 print('===========================================')
 agent.printMeanReward()
-
-# print("Did the Correct Thing: ", agent.rightMove/agent.totalMoves)
-# print("Moved Twice: ", agent.movedTwice/agent.totalMoves)
-# print("Moved Backward: ", agent.movedBackward/agent.totalMoves)
