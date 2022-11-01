@@ -98,7 +98,6 @@ class Agent:
             explore = random.uniform(0, 1) < chance
             if explore:
                 nextAct = random.choice(self.actions)
-                self.exploreTime += 1
             else:
                 nextAct = self.getBestActionFromQtable(self.currentLocation)
 
