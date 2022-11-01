@@ -15,8 +15,10 @@ filename = 'large_test.tsv'
 action = -0.04
 gamma = 0.9
 learningRate = 0.1
-runTime = 20.0
-P = 1.0
+runTime = 1
+# Transition Model, the rate of doing correct move
+P = 0
+
 
 print('Reading Filename: ', filename)
 print('Reward Per Action: ', action)
